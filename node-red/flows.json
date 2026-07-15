@@ -6,5 +6,81 @@
         "disabled": false,
         "info": "",
         "env": []
+    },
+    {
+        "id": "3a97b5418d5dd26b",
+        "type": "inject",
+        "z": "9f0a4d1acb454857",
+        "name": "Generate HVAC Data",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 260,
+        "wires": [
+            [
+                "0cb8635a851792b3"
+            ]
+        ]
+    },
+    {
+        "id": "933aed43e330c453",
+        "type": "debug",
+        "z": "9f0a4d1acb454857",
+        "name": "Debug Telemetry",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 710,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "0cb8635a851792b3",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "HVAC Data Generator",
+        "func": "// Generate realistic mock data for our HVAC parameters\nconst temperature = parseFloat((22 + Math.random() * 4).toFixed(1)); // 22°C to 26°C\nconst humidity = parseFloat((45 + Math.random() * 15).toFixed(1));    // 45% to 60%\nconst voltage = parseFloat((225 + Math.random() * 10).toFixed(1));   // 225V to 235V\nconst current = parseFloat((3.5 + Math.random() * 2.0).toFixed(1));  // 3.5A to 5.5A\n\n// Simple calculation for Energy (Power = V * A, simplified representation)\nconst energy = parseFloat(((voltage * current) / 1000).toFixed(2)); \n\n// Simulate 0 to 12 people in the zone\nconst occupancy = Math.floor(Math.random() * 13); \n\n// Bundle it into a single professional JSON telemetry packet\nmsg.payload = {\n    temperature: temperature,\n    humidity: humidity,\n    voltage: voltage,\n    current: current,\n    energy: energy,\n    occupancy: occupancy\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 260,
+        "wires": [
+            [
+                "933aed43e330c453"
+            ]
+        ]
+    },
+    {
+        "id": "c7003c96ddae6e1f",
+        "type": "comment",
+        "z": "9f0a4d1acb454857",
+        "name": "Simulation Layer ",
+        "info": "Generates virtual HVAC sensor data.",
+        "x": 440,
+        "y": 180,
+        "wires": []
     }
 ]
