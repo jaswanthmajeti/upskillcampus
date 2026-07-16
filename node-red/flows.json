@@ -99,8 +99,96 @@
         "y": 260,
         "wires": [
             [
-                "933aed43e330c453"
+                "933aed43e330c453",
+                "175071206be88e53"
             ]
         ]
+    },
+    {
+        "id": "175071206be88e53",
+        "type": "mqtt out",
+        "z": "9f0a4d1acb454857",
+        "name": "Publish HVAC Data",
+        "topic": "hvac/data",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "1b0d70d0ced72d29",
+        "x": 350,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "71089e25d31c6ade",
+        "type": "mqtt in",
+        "z": "9f0a4d1acb454857",
+        "name": "Subscribe HVAC Data",
+        "topic": "hvac/data",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "1b0d70d0ced72d29",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 420,
+        "y": 600,
+        "wires": [
+            [
+                "52da697b34ff63f2"
+            ]
+        ]
+    },
+    {
+        "id": "52da697b34ff63f2",
+        "type": "debug",
+        "z": "9f0a4d1acb454857",
+        "name": "Debug MQTT Message",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 730,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "1b0d70d0ced72d29",
+        "type": "mqtt-broker",
+        "name": "Local Mosquitto",
+        "broker": "localhost",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
     }
 ]
