@@ -28,7 +28,7 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 200,
+        "x": 160,
         "y": 260,
         "wires": [
             [
@@ -49,7 +49,7 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 710,
+        "x": 950,
         "y": 260,
         "wires": []
     },
@@ -65,11 +65,11 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 440,
+        "x": 420,
         "y": 260,
         "wires": [
             [
-                "933aed43e330c453"
+                "663162be465b223d"
             ]
         ]
     },
@@ -82,5 +82,25 @@
         "x": 440,
         "y": 180,
         "wires": []
+    },
+    {
+        "id": "663162be465b223d",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "HVAC Data Processor",
+        "func": "// 1. Capture the incoming telemetry object\nconst rawData = msg.payload;\n\n// 2. Add ISO 8601 Standard Timestamp\nconst timestamp = new Date().toISOString();\n\n// 3. Quality Check / Validation Rules\n// If any reading falls outside physical reality, clamp it or flag it\nlet validTemperature = rawData.temperature;\nif (validTemperature < -10 || validTemperature > 60) validTemperature = 25.0; // Fail-safe default\n\nlet validHumidity = rawData.humidity;\nif (validHumidity < 0 || validHumidity > 100) validHumidity = 50.0; // Clamp to human comfort norms\n\nlet validOccupancy = rawData.occupancy;\nif (validOccupancy < 0) validOccupancy = 0; // Prevent impossible negative headcounts\n\n// 4. Construct the Standardized Message Contract\nmsg.payload = {\n    timestamp: timestamp,\n    temperature: parseFloat(validTemperature.toFixed(1)),\n    humidity: parseFloat(validHumidity.toFixed(1)),\n    voltage: parseFloat(rawData.voltage.toFixed(1)),\n    current: parseFloat(rawData.current.toFixed(1)),\n    energy: parseFloat(rawData.energy.toFixed(2)),\n    occupancy: parseInt(validOccupancy)\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 680,
+        "y": 260,
+        "wires": [
+            [
+                "933aed43e330c453"
+            ]
+        ]
     }
 ]
