@@ -139,7 +139,9 @@
         "y": 600,
         "wires": [
             [
-                "52da697b34ff63f2"
+                "52da697b34ff63f2",
+                "6708a09f42b52f75",
+                "e14ae196cad71a5b"
             ]
         ]
     },
@@ -158,6 +160,337 @@
         "statusType": "auto",
         "x": 730,
         "y": 600,
+        "wires": []
+    },
+    {
+        "id": "6708a09f42b52f75",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "UI Payload Splitter",
+        "func": "// Parse the incoming string payload if it isn't already an object\nconst data = (typeof msg.payload === \"string\") ? JSON.parse(msg.payload) : msg.payload;\n\n// Create 6 independent message objects targeting our 6 outputs\nconst outTemp      = { payload: data.temperature };\nconst outHumidity  = { payload: data.humidity };\nconst outVoltage   = { payload: data.voltage };\nconst outCurrent   = { payload: data.current };\nconst outEnergy    = { payload: data.energy , timestamp: Date.now() };\nconst outOccupancy = { payload: data.occupancy };\n\n// Return the array matching the physical output ports (1 to 6)\nreturn [outTemp, outHumidity, outVoltage, outCurrent, outEnergy, outOccupancy];",
+        "outputs": 6,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 270,
+        "y": 840,
+        "wires": [
+            [
+                "e9ce2a4a5be735d0"
+            ],
+            [
+                "1efd7bc643d58597"
+            ],
+            [
+                "5f715defbf6403b1"
+            ],
+            [
+                "cafd2e363fe0964d"
+            ],
+            [
+                "712c33ee2d9e43f8"
+            ],
+            [
+                "f24423341ad316c1"
+            ]
+        ]
+    },
+    {
+        "id": "e9ce2a4a5be735d0",
+        "type": "ui-gauge",
+        "z": "9f0a4d1acb454857",
+        "name": "Temperature",
+        "group": "4c8daa69d5751f64",
+        "order": 1,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 3,
+        "height": 3,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Temparature",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "°C",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#5cd65c",
+                "text": "Normal",
+                "textType": "str"
+            },
+            {
+                "from": "24",
+                "color": "#ffc800",
+                "text": "Warning",
+                "textType": "str"
+            },
+            {
+                "from": "28",
+                "color": "#ea5353",
+                "text": "Critical",
+                "textType": "str"
+            }
+        ],
+        "min": 0,
+        "max": "50",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 790,
+        "y": 640,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1efd7bc643d58597",
+        "type": "ui-gauge",
+        "z": "9f0a4d1acb454857",
+        "name": "Humidity",
+        "group": "4c8daa69d5751f64",
+        "order": 2,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 3,
+        "height": 3,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Humidity",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "%",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#ffc800",
+                "text": "Dry",
+                "textType": "str"
+            },
+            {
+                "from": "40",
+                "color": "#5cd65c",
+                "text": "Optimal",
+                "textType": "str"
+            },
+            {
+                "from": "60",
+                "color": "#ea5353",
+                "text": "Humid",
+                "textType": "str"
+            }
+        ],
+        "min": 0,
+        "max": "100",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 780,
+        "y": 700,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5f715defbf6403b1",
+        "type": "ui-text",
+        "z": "9f0a4d1acb454857",
+        "group": "461867b76e5001be",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "System Voltage",
+        "label": "Voltage",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "msg.payload & \" V\"",
+        "valueType": "jsonata",
+        "x": 800,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "cafd2e363fe0964d",
+        "type": "ui-gauge",
+        "z": "9f0a4d1acb454857",
+        "name": "Current Draw",
+        "group": "461867b76e5001be",
+        "order": 1,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 3,
+        "height": 3,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Current ",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "A",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#5cd65c",
+                "text": "Normal Load",
+                "textType": "str"
+            },
+            {
+                "from": "6",
+                "color": "#ffc800",
+                "text": "High Load",
+                "textType": "str"
+            },
+            {
+                "from": "8.5",
+                "color": "#ea5353",
+                "text": "Over Load",
+                "textType": "str"
+            }
+        ],
+        "min": 0,
+        "max": 10,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 790,
+        "y": 820,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "712c33ee2d9e43f8",
+        "type": "ui-chart",
+        "z": "9f0a4d1acb454857",
+        "group": "c08b6b536162d620",
+        "name": "Energy Consumption trend",
+        "label": "Energy Consumption trend",
+        "order": 1,
+        "chartType": "line",
+        "category": "Energy",
+        "categoryType": "str",
+        "xAxisLabel": "Time",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "Energy (kWh)",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "",
+        "ymax": "",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": "12",
+        "height": 8,
+        "className": "",
+        "interpolation": "linear",
+        "x": 840,
+        "y": 880,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f24423341ad316c1",
+        "type": "ui-text",
+        "z": "9f0a4d1acb454857",
+        "group": "4c8daa69d5751f64",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "Current Occupancy",
+        "label": "Current Occupancy",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "msg.payload & \" people\"",
+        "valueType": "jsonata",
+        "x": 810,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "e14ae196cad71a5b",
+        "type": "ui-text",
+        "z": "9f0a4d1acb454857",
+        "group": "d2b103b9f04c61dc",
+        "order": 1,
+        "width": "2",
+        "height": "2",
+        "name": "System Alerts: Normal Operation",
+        "label": "Last Updated",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "$fromMillis($millis(), '[H01]:[m01]:[s01]')",
+        "valueType": "jsonata",
+        "x": 1120,
+        "y": 500,
         "wires": []
     },
     {
@@ -190,5 +523,144 @@
         "willMsg": {},
         "userProps": "",
         "sessionExpiry": ""
+    },
+    {
+        "id": "4c8daa69d5751f64",
+        "type": "ui-group",
+        "name": "Environmental Group",
+        "page": "cac00a6afc9cb266",
+        "width": "6",
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "461867b76e5001be",
+        "type": "ui-group",
+        "name": "Electrical Group",
+        "page": "cac00a6afc9cb266",
+        "width": "6",
+        "height": 1,
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "c08b6b536162d620",
+        "type": "ui-group",
+        "name": "Energy Trend",
+        "page": "cac00a6afc9cb266",
+        "width": "12",
+        "height": 1,
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "d2b103b9f04c61dc",
+        "type": "ui-group",
+        "name": "System Status & Diagnostics",
+        "page": "cac00a6afc9cb266",
+        "width": "12",
+        "height": 1,
+        "order": 4,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "cac00a6afc9cb266",
+        "type": "ui-page",
+        "name": "HVAC & Remote Energy Monitoring System",
+        "ui": "68191ef77e44e9ad",
+        "path": "/page1",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "37d9ecf640c6047c",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "68191ef77e44e9ad",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "37d9ecf640c6047c",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094CE",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "4de766bb13941bd6",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.30.2"
+        }
     }
 ]
