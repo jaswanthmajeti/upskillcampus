@@ -140,8 +140,7 @@
         "wires": [
             [
                 "52da697b34ff63f2",
-                "6708a09f42b52f75",
-                "e14ae196cad71a5b"
+                "6708a09f42b52f75"
             ]
         ]
     },
@@ -167,7 +166,7 @@
         "type": "function",
         "z": "9f0a4d1acb454857",
         "name": "UI Payload Splitter",
-        "func": "// Parse the incoming string payload if it isn't already an object\nconst data = (typeof msg.payload === \"string\") ? JSON.parse(msg.payload) : msg.payload;\n\n// Create 6 independent message objects targeting our 6 outputs\nconst outTemp      = { payload: data.temperature };\nconst outHumidity  = { payload: data.humidity };\nconst outVoltage   = { payload: data.voltage };\nconst outCurrent   = { payload: data.current };\nconst outEnergy    = { payload: data.energy , timestamp: Date.now() };\nconst outOccupancy = { payload: data.occupancy };\n\n// Return the array matching the physical output ports (1 to 6)\nreturn [outTemp, outHumidity, outVoltage, outCurrent, outEnergy, outOccupancy];",
+        "func": "// Parse the incoming string payload if it isn't already an object\nconst data = (typeof msg.payload === \"string\") ? JSON.parse(msg.payload) : msg.payload;\n\n// Create 6 independent message objects targeting our 6 outputs with topics added!\nconst outTemp      = { payload: data.temperature, topic: \"Temperature\" };\nconst outHumidity  = { payload: data.humidity, topic: \"Humidity\" };\nconst outVoltage   = { payload: data.voltage, topic: \"Voltage\" };\nconst outCurrent   = { payload: data.current, topic: \"Current\" };\nconst outEnergy    = { payload: data.energy, timestamp: Date.now(), topic: \"Energy\" };\nconst outOccupancy = { payload: data.occupancy, topic: \"Occupancy\" };\n\n// Return the array matching the physical output ports (1 to 6)\nreturn [outTemp, outHumidity, outVoltage, outCurrent, outEnergy, outOccupancy];",
         "outputs": 6,
         "timeout": 0,
         "noerr": 0,
@@ -178,7 +177,8 @@
         "y": 840,
         "wires": [
             [
-                "e9ce2a4a5be735d0"
+                "e9ce2a4a5be735d0",
+                "ee8dad1c08a8ec54"
             ],
             [
                 "1efd7bc643d58597"
@@ -187,7 +187,8 @@
                 "5f715defbf6403b1"
             ],
             [
-                "cafd2e363fe0964d"
+                "cafd2e363fe0964d",
+                "ee8dad1c08a8ec54"
             ],
             [
                 "712c33ee2d9e43f8"
@@ -475,10 +476,10 @@
         "z": "9f0a4d1acb454857",
         "group": "d2b103b9f04c61dc",
         "order": 1,
-        "width": "2",
+        "width": "8",
         "height": "2",
         "name": "System Alerts: Normal Operation",
-        "label": "Last Updated",
+        "label": "",
         "format": "{{msg.payload}}",
         "layout": "row-spread",
         "style": false,
@@ -487,11 +488,31 @@
         "color": "#717171",
         "wrapText": false,
         "className": "",
-        "value": "$fromMillis($millis(), '[H01]:[m01]:[s01]')",
-        "valueType": "jsonata",
-        "x": 1120,
-        "y": 500,
+        "value": "payload",
+        "valueType": "msg",
+        "x": 860,
+        "y": 1040,
         "wires": []
+    },
+    {
+        "id": "ee8dad1c08a8ec54",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "Alarm Rule Engine",
+        "func": "// Initialize or retrieve persistent variables to keep track of current readings\nlet currentTemp = context.get('temp') || 22;\nlet currentDraw = context.get('current') || 4.0;\n\n// Update state based on incoming data streams\nif (msg.topic === \"Temperature\" || !msg.topic) {\n    currentTemp = msg.payload;\n    context.set('temp', currentTemp);\n} else if (msg.topic === \"Current\") {\n    currentDraw = msg.payload;\n    context.set('current', currentDraw);\n}\n\n// Establish fallback default alert status\nlet statusText = \"System operating within normal parameters.\";\nlet stateName = \"HEALTHY\";\nlet alertColor = \"#4CAF50\"; // Clean industrial green\n\n// 1. Evaluate Critical Fault Conditions First\nif (currentDraw > 8.5 || currentTemp > 28) {\n    stateName = \"CRITICAL\";\n    alertColor = \"#F44336\"; // Red\n    statusText = currentDraw > 8.5 ? \"CRITICAL: Overcurrent limit tripped!\" : \"CRITICAL: Dangerous room overheating!\";\n} \n// 2. Evaluate Marginal Warning Conditions Next\nelse if (currentDraw > 6.0 || currentTemp > 24) {\n    stateName = \"WARNING\";\n    alertColor = \"#FFC107\"; // Yellow\n    statusText = currentDraw > 6.0 ? \"WARNING: High phase current draw detected.\" : \"WARNING: Elevated zone temperature.\";\n}\n\n// Generate the local timestamp string (HH:MM:SS)\nconst now = new Date();\nconst timeString = now.toTimeString().split(' ')[0];\n\n// Package the evaluation result into a standardized Markdown payload with the Live Timestamp\nmsg.payload = `<div style=\"background-color: ${alertColor}; color: white; padding: 12px; border-radius: 4px; font-weight: bold; text-align: center; font-family: sans-serif;\">\n    <div style=\"font-size: 1.1em; margin-bottom: 4px;\">Status: ${stateName} | ${statusText}</div>\n    <div style=\"font-size: 0.85em; font-weight: normal; opacity: 0.9;\">Last Updated: ${timeString}</div>\n</div>`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 1040,
+        "wires": [
+            [
+                "e14ae196cad71a5b"
+            ]
+        ]
     },
     {
         "id": "1b0d70d0ced72d29",
@@ -656,7 +677,7 @@
         }
     },
     {
-        "id": "4de766bb13941bd6",
+        "id": "31426d6da384e29f",
         "type": "global-config",
         "env": [],
         "modules": {
