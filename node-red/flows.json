@@ -79,7 +79,7 @@
         "z": "9f0a4d1acb454857",
         "name": "Simulation Layer ",
         "info": "Generates virtual HVAC sensor data.",
-        "x": 440,
+        "x": 420,
         "y": 180,
         "wires": []
     },
@@ -499,7 +499,7 @@
         "type": "function",
         "z": "9f0a4d1acb454857",
         "name": "Alarm Rule Engine",
-        "func": "// Initialize or retrieve persistent variables to keep track of current readings\nlet currentTemp = context.get('temp') || 22;\nlet currentDraw = context.get('current') || 4.0;\n\n// Update state based on incoming data streams\nif (msg.topic === \"Temperature\" || !msg.topic) {\n    currentTemp = msg.payload;\n    context.set('temp', currentTemp);\n} else if (msg.topic === \"Current\") {\n    currentDraw = msg.payload;\n    context.set('current', currentDraw);\n}\n\n// Establish fallback default alert status\nlet statusText = \"System operating within normal parameters.\";\nlet stateName = \"HEALTHY\";\nlet alertColor = \"#4CAF50\"; // Clean industrial green\n\n// 1. Evaluate Critical Fault Conditions First\nif (currentDraw > 8.5 || currentTemp > 28) {\n    stateName = \"CRITICAL\";\n    alertColor = \"#F44336\"; // Red\n    statusText = currentDraw > 8.5 ? \"CRITICAL: Overcurrent limit tripped!\" : \"CRITICAL: Dangerous room overheating!\";\n} \n// 2. Evaluate Marginal Warning Conditions Next\nelse if (currentDraw > 6.0 || currentTemp > 24) {\n    stateName = \"WARNING\";\n    alertColor = \"#FFC107\"; // Yellow\n    statusText = currentDraw > 6.0 ? \"WARNING: High phase current draw detected.\" : \"WARNING: Elevated zone temperature.\";\n}\n\n// Generate the local timestamp string (HH:MM:SS)\nconst now = new Date();\nconst timeString = now.toTimeString().split(' ')[0];\n\n// Package the evaluation result into a standardized Markdown payload with the Live Timestamp\nmsg.payload = `<div style=\"background-color: ${alertColor}; color: white; padding: 12px; border-radius: 4px; font-weight: bold; text-align: center; font-family: sans-serif;\">\n    <div style=\"font-size: 1.1em; margin-bottom: 4px;\">Status: ${stateName} | ${statusText}</div>\n    <div style=\"font-size: 0.85em; font-weight: normal; opacity: 0.9;\">Last Updated: ${timeString}</div>\n</div>`;\n\nreturn msg;",
+        "func": "// Initialize or retrieve persistent variables to keep track of current readings\nlet currentTemp = context.get('temp') || 22;\nlet currentDraw = context.get('current') || 4.0;\n\n// Update state based on incoming data streams\nif (msg.topic === \"Temperature\" || !msg.topic) {\n    currentTemp = msg.payload;\n    context.set('temp', currentTemp);\n} else if (msg.topic === \"Current\") {\n    currentDraw = msg.payload;\n    context.set('current', currentDraw);\n}\n\n// Establish fallback default alert status\nlet statusText = \"System operating within normal parameters.\";\nlet stateName = \"HEALTHY\";\nlet alertColor = \"#4CAF50\"; // Clean industrial green\n\n// 1. Evaluate Critical Fault Conditions First\nif (currentDraw > 8.5 || currentTemp > 28) {\n    stateName = \"CRITICAL\";\n    alertColor = \"#F44336\"; // Red\n    statusText = currentDraw > 8.5 ? \"CRITICAL: Overcurrent limit tripped!\" : \"CRITICAL: Dangerous room overheating!\";\n} \n// 2. Evaluate Marginal Warning Conditions Next\nelse if (currentDraw > 6.0 || currentTemp > 24) {\n    stateName = \"WARNING\";\n    alertColor = \"#FFC107\"; // Yellow\n    statusText = currentDraw > 6.0 ? \"WARNING: High phase current draw detected.\" : \"WARNING: Elevated zone temperature.\";\n}\n\n// Generate the local timestamp string (HH:MM:SS)\nconst now = new Date();\nconst timeString = now.toTimeString().split(' ')[0];\n\n// Store the explicit raw tracking name as a metadata property!\nmsg.state = stateName; \n\n// Package the evaluation result into a standardized Markdown payload with the Live Timestamp\nmsg.payload = `<div style=\"background-color: ${alertColor}; color: white; padding: 12px; border-radius: 4px; font-weight: bold; text-align: center; font-family: sans-serif;\">\n    <div style=\"font-size: 1.1em; margin-bottom: 4px;\">Status: ${stateName} | ${statusText}</div>\n    <div style=\"font-size: 0.85em; font-weight: normal; opacity: 0.9;\">Last Updated: ${timeString}</div>\n</div>`;\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -513,6 +513,46 @@
                 "e14ae196cad71a5b"
             ]
         ]
+    },
+    {
+        "id": "87f49c398a4d706d",
+        "type": "comment",
+        "z": "9f0a4d1acb454857",
+        "name": "Processing Layer",
+        "info": "",
+        "x": 680,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "d9f5cc42bc47613c",
+        "type": "comment",
+        "z": "9f0a4d1acb454857",
+        "name": "Communication Layer",
+        "info": "",
+        "x": 400,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "0eb7c574c2957931",
+        "type": "comment",
+        "z": "9f0a4d1acb454857",
+        "name": "Presentation Layer",
+        "info": "",
+        "x": 1090,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "a03197fdb8abc66a",
+        "type": "comment",
+        "z": "9f0a4d1acb454857",
+        "name": "Business Logic Layer",
+        "info": "",
+        "x": 940,
+        "y": 1100,
+        "wires": []
     },
     {
         "id": "1b0d70d0ced72d29",
@@ -677,7 +717,7 @@
         }
     },
     {
-        "id": "31426d6da384e29f",
+        "id": "3729ddd3f8644cad",
         "type": "global-config",
         "env": [],
         "modules": {
