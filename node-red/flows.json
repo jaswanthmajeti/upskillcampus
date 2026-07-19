@@ -40,7 +40,7 @@
         "id": "933aed43e330c453",
         "type": "debug",
         "z": "9f0a4d1acb454857",
-        "name": "Debug Telemetry",
+        "name": "Live Telemetry",
         "active": true,
         "tosidebar": true,
         "console": false,
@@ -49,7 +49,7 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 950,
+        "x": 940,
         "y": 260,
         "wires": []
     },
@@ -140,7 +140,8 @@
         "wires": [
             [
                 "52da697b34ff63f2",
-                "6708a09f42b52f75"
+                "6708a09f42b52f75",
+                "6a7687ebfce84709"
             ]
         ]
     },
@@ -148,7 +149,7 @@
         "id": "52da697b34ff63f2",
         "type": "debug",
         "z": "9f0a4d1acb454857",
-        "name": "Debug MQTT Message",
+        "name": "MQTT Payload Debug",
         "active": true,
         "tosidebar": true,
         "console": false,
@@ -157,7 +158,7 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 730,
+        "x": 720,
         "y": 600,
         "wires": []
     },
@@ -540,8 +541,8 @@
         "z": "9f0a4d1acb454857",
         "name": "Presentation Layer",
         "info": "",
-        "x": 1090,
-        "y": 760,
+        "x": 1030,
+        "y": 780,
         "wires": []
     },
     {
@@ -553,6 +554,196 @@
         "x": 940,
         "y": 1100,
         "wires": []
+    },
+    {
+        "id": "6a7687ebfce84709",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "SQL formatter",
+        "func": "const d = msg.payload;\n\nmsg.topic = `\nINSERT INTO hvac_logs\n(timestamp, temperature, humidity, voltage, current, energy, occupancy)\nVALUES (\n'${d.timestamp}',\n${d.temperature},\n${d.humidity},\n${d.voltage},\n${d.current},\n${d.energy},\n${d.occupancy}\n);\n`;\n\ndelete msg.payload;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1080,
+        "y": 460,
+        "wires": [
+            [
+                "4143286c39aa323f"
+            ]
+        ]
+    },
+    {
+        "id": "4143286c39aa323f",
+        "type": "sqlite",
+        "z": "9f0a4d1acb454857",
+        "mydb": "1b85c1c2aad97f1e",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "SQLite (INSERT)",
+        "x": 1330,
+        "y": 460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "298083808b9b5220",
+        "type": "inject",
+        "z": "9f0a4d1acb454857",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 1100,
+        "y": 600,
+        "wires": [
+            [
+                "80f8caa91f4a4bb1"
+            ]
+        ]
+    },
+    {
+        "id": "80f8caa91f4a4bb1",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "Table Creator",
+        "func": "msg.topic = `\nCREATE TABLE IF NOT EXISTS hvac_logs (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    timestamp TEXT,\n    temperature REAL,\n    humidity REAL,\n    voltage REAL,\n    current REAL,\n    energy REAL,\n    occupancy INTEGER\n);\n`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1280,
+        "y": 600,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4f96f90b96741344",
+        "type": "debug",
+        "z": "9f0a4d1acb454857",
+        "name": "SQLite Query Debug",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1600,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "8057b6dea8d9e7cc",
+        "type": "inject",
+        "z": "9f0a4d1acb454857",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 910,
+        "y": 400,
+        "wires": [
+            [
+                "edd196103b2d42df"
+            ]
+        ]
+    },
+    {
+        "id": "edd196103b2d42df",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "Fetch History",
+        "func": "msg.topic = `\nSELECT *\nFROM hvac_logs\nORDER BY id DESC\nLIMIT 10;\n`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1130,
+        "y": 400,
+        "wires": [
+            [
+                "909e08d1aa1f8b03"
+            ]
+        ]
+    },
+    {
+        "id": "909e08d1aa1f8b03",
+        "type": "sqlite",
+        "z": "9f0a4d1acb454857",
+        "mydb": "1b85c1c2aad97f1e",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "SQLite (SELECT)",
+        "x": 1370,
+        "y": 400,
+        "wires": [
+            [
+                "b060c7f2c5c3625b"
+            ]
+        ]
+    },
+    {
+        "id": "b060c7f2c5c3625b",
+        "type": "ui-table",
+        "z": "9f0a4d1acb454857",
+        "group": "ae19b5eddfb14d32",
+        "name": "Historical Data Table",
+        "label": "",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "maxrows": 0,
+        "passthru": false,
+        "autocols": true,
+        "showSearch": true,
+        "deselect": true,
+        "selectionType": "none",
+        "columns": [],
+        "mobileBreakpoint": "sm",
+        "mobileBreakpointType": "defaults",
+        "action": "replace",
+        "className": "",
+        "x": 1640,
+        "y": 400,
+        "wires": [
+            []
+        ]
     },
     {
         "id": "1b0d70d0ced72d29",
@@ -642,6 +833,26 @@
         "groupType": "default"
     },
     {
+        "id": "1b85c1c2aad97f1e",
+        "type": "sqlitedb",
+        "db": "hvac_monitoring.db",
+        "mode": "RWC"
+    },
+    {
+        "id": "ae19b5eddfb14d32",
+        "type": "ui-group",
+        "name": "Historical Data",
+        "page": "cac00a6afc9cb266",
+        "width": "12",
+        "height": 1,
+        "order": 5,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
         "id": "cac00a6afc9cb266",
         "type": "ui-page",
         "name": "HVAC & Remote Energy Monitoring System",
@@ -717,11 +928,12 @@
         }
     },
     {
-        "id": "3729ddd3f8644cad",
+        "id": "db40452482324025",
         "type": "global-config",
         "env": [],
         "modules": {
-            "@flowfuse/node-red-dashboard": "1.30.2"
+            "@flowfuse/node-red-dashboard": "1.30.2",
+            "node-red-node-sqlite": "2.0.1"
         }
     }
 ]

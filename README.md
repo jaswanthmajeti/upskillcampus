@@ -1,69 +1,56 @@
-# HVAC and Remote Energy Monitoring System using Node-RED & MQTT
+# HVAC and Remote Energy Monitoring System
 
-An Industrial IoT simulation project that demonstrates the design and implementation of a real-time HVAC and Remote Energy Monitoring System using **Node-RED** and **MQTT**. This project simulates HVAC monitoring without physical hardware by generating virtual sensor data, enabling real-time visualization and analysis through an interactive dashboard.
+## Overview
 
+This project is an Industrial IoT simulation built with Node-RED and MQTT for real-time HVAC and energy monitoring. Instead of physical sensors, it generates realistic mock telemetry and visualizes system behavior through a live dashboard.
 
----
+## Features
 
-## 📌 Project Overview
+- Simulates HVAC telemetry every 5 seconds.
+- Monitors temperature, humidity, voltage, current, energy, and occupancy.
+- Applies data validation and normalization before publishing.
+- Uses MQTT publish/subscribe communication on topic hvac/data.
+- Displays live dashboard widgets: gauges, chart, and status text.
+- Includes alarm logic with HEALTHY, WARNING, and CRITICAL states.
+- Provides debug outputs for telemetry and MQTT payload verification.
 
-This project aims to simulate an Industrial IoT-based HVAC monitoring solution by replacing physical sensors and DAMS hardware with Node-RED. The system generates simulated environmental and electrical parameters, transmits them using MQTT, and visualizes them on a monitoring dashboard for analysis and decision-making.
+## Architecture
 
----
-
-## 🎯 Objectives
-
-- Simulate HVAC monitoring without physical hardware.
-- Generate virtual sensor data using Node-RED.
-- Implement MQTT-based publish-subscribe communication.
-- Develop a real-time monitoring dashboard.
-- Analyze monitored data for operational insights.
-
----
-
-## 📊 Parameters Monitored
-
-- 🌡️ Temperature
-- 💧 Humidity
-- ⚡ Voltage
-- 🔌 Current
-- ⚙️ Energy Consumption
-- 👥 Occupancy Count
-
----
-
-## 🏗️ System Architecture
-
-The system follows a typical Industrial IoT monitoring workflow:
-
-```
-Simulated HVAC Parameters
-          │
-          ▼
-      Node-RED
-          │
-          ▼
-    MQTT Publisher
-          │
-          ▼
-     MQTT Broker
-          │
-          ▼
-   MQTT Subscriber
-          │
-          ▼
- Node-RED Dashboard
-          │
-          ▼
-     Data Analytics
+```mermaid
+flowchart LR
+     A[Inject: Generate HVAC Data] --> B[HVAC Data Generator]
+     B --> C[HVAC Data Processor]
+     C --> D[MQTT Out: hvac/data]
+     D --> E[(Local Mosquitto Broker)]
+     E --> F[MQTT In: hvac/data]
+     F --> G[UI Payload Splitter]
+     G --> H[Dashboard Widgets]
+     G --> I[Alarm Rule Engine]
+     I --> J[System Status Panel]
 ```
 
----
-
-## 🛠️ Tech Stack
+## Technology Stack
 
 - Node-RED
-- MQTT
-- Node-RED Dashboard
-- Git
-- GitHub
+- MQTT (Mosquitto broker on localhost:1883)
+- Node-RED Dashboard (@flowfuse/node-red-dashboard)
+- JSON-based flow configuration
+
+## Project Structure
+
+```text
+upskillcampus/
+|-- README.md
+|-- node-red/
+|   |-- flows.json
+```
+
+## System Workflow
+
+1. Inject node triggers data generation at fixed intervals.
+2. Generator function creates mock HVAC and electrical telemetry.
+3. Processor function timestamps, validates, and standardizes payload.
+4. Data is published to MQTT topic hvac/data.
+5. Subscriber receives the same topic for downstream processing.
+6. UI splitter routes values to dedicated dashboard widgets.
+7. Alarm engine evaluates thresholds and updates status messages.
