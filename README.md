@@ -39,18 +39,50 @@ The following work was implemented as part of the project:
 
 ## System Architecture
 
+The current implementation follows a complete Node-RED telemetry pipeline that starts with simulated sensor generation and ends with MQTT-based data distribution and a live dashboard UI.
+
 ```mermaid
 flowchart LR
     A[Inject: Generate HVAC Data] --> B[HVAC Data Generator]
     B --> C[HVAC Data Processor]
-    C --> D[MQTT Out: hvac/data]
-    D --> E[(Mosquitto Broker)]
-    E --> F[MQTT In: hvac/data]
-    F --> G[UI Payload Splitter]
-    G --> H[Dashboard Widgets]
-    G --> I[Alarm Rule Engine]
-    I --> J[System Status Panel]
+
+    C --> D[Debug: Live Telemetry]
+
+    C --> E[MQTT Out: Publish HVAC Data]
+    E --> F[(Mosquitto Broker)]
+    F --> G[MQTT In: Subscribe HVAC Data]
+
+    G --> H[Debug: MQTT Payload Debug]
+
+    G --> I[UI Payload Splitter]
+
+    I --> J[Temperature Gauge]
+    I --> K[Humidity Gauge]
+    I --> L[Voltage Display]
+    I --> M[Current Gauge]
+    I --> N[Energy Chart]
+    I --> O[Occupancy Display]
+
+    G --> R[SQLite Database]
+
+    R --> S[Historical Data Table]
+
+    R --> T[SQL Analytics]
+
+    T --> U[Analytics Cards]
+
+    I --> P[Alarm Rule Engine]
+    P --> Q[System Alerts UI]
 ```
+
+### Architecture Notes
+
+- The flow uses an inject node to trigger telemetry every 5 seconds.
+- The generator function creates mock values for temperature, humidity, voltage, current, energy, and occupancy.
+- The processor validates the payload and adds a timestamp before publishing.
+- MQTT is used to transport the processed telemetry from the publisher to the subscriber.
+- The UI payload splitter routes the incoming data to separate dashboard components.
+- The alarm rule engine evaluates temperature and current thresholds and updates the alert panel with HEALTHY, WARNING, or CRITICAL status.
 
 ## Technology Stack
 
@@ -87,6 +119,6 @@ upskillcampus/
 4. Import the flow file from the node-red folder into Node-RED.
 5. Deploy the flow and open the dashboard UI.
 
-##  Project Outcome
+## Project Outcome
 
 This project demonstrates how a smart monitoring prototype can be built using low-cost IoT tools to visualize environmental and energy data in real time. It provides a strong foundation for extending the system to real sensors, cloud connectivity, remote alerts, and predictive maintenance in future iterations.
