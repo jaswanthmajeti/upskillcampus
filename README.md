@@ -98,6 +98,9 @@ flowchart LR
 upskillcampus/
 |-- README.md
 |-- HVACAndRemoteEnergyMonitoringSystem_JASWANTH_USC_UCT.pdf
+|-- images/
+|   |-- dashboard.png
+|   |-- node-red flow.png
 |-- node-red/
 |   |-- flows.json
 ```
