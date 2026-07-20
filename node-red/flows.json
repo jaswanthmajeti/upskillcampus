@@ -58,7 +58,7 @@
         "type": "function",
         "z": "9f0a4d1acb454857",
         "name": "HVAC Data Generator",
-        "func": "// Generate realistic mock data for our HVAC parameters\nconst temperature = parseFloat((22 + Math.random() * 4).toFixed(1)); // 22°C to 26°C\nconst humidity = parseFloat((45 + Math.random() * 15).toFixed(1));    // 45% to 60%\nconst voltage = parseFloat((225 + Math.random() * 10).toFixed(1));   // 225V to 235V\nconst current = parseFloat((3.5 + Math.random() * 2.0).toFixed(1));  // 3.5A to 5.5A\n\n// Simple calculation for Energy (Power = V * A, simplified representation)\nconst energy = parseFloat(((voltage * current) / 1000).toFixed(2)); \n\n// Simulate 0 to 12 people in the zone\nconst occupancy = Math.floor(Math.random() * 13); \n\n// Bundle it into a single professional JSON telemetry packet\nmsg.payload = {\n    temperature: temperature,\n    humidity: humidity,\n    voltage: voltage,\n    current: current,\n    energy: energy,\n    occupancy: occupancy\n};\n\nreturn msg;",
+        "func": "// Generate realistic mock data for our HVAC parameters\nconst temperature = parseFloat((22 + Math.random() * 4).toFixed(1)); // 22°C to 26°C\nconst humidity = parseFloat((45 + Math.random() * 15).toFixed(1));    // 45% to 60%\nconst voltage = parseFloat((225 + Math.random() * 10).toFixed(1));   // 225V to 235V\nconst current = parseFloat((3.5 + Math.random() * 2.0).toFixed(1));  // 3.5A to 5.5A\n\n// Simple calculation for Energy (Power = V * A, simplified representation)\n// Approximate instantaneous power in kW (used as demo energy metric)\nconst energy = parseFloat(((voltage * current) / 1000).toFixed(2)); \n\n// Simulate 0 to 12 people in the zone\nconst occupancy = Math.floor(Math.random() * 13); \n\n// Bundle it into a single professional JSON telemetry packet\nmsg.payload = {\n    temperature: temperature,\n    humidity: humidity,\n    voltage: voltage,\n    current: current,\n    energy: energy,\n    occupancy: occupancy\n};\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -78,7 +78,7 @@
         "type": "comment",
         "z": "9f0a4d1acb454857",
         "name": "Simulation Layer ",
-        "info": "Generates virtual HVAC sensor data.",
+        "info": "Generates simulated HVAC sensor readings.",
         "x": 420,
         "y": 180,
         "wires": []
@@ -397,8 +397,8 @@
         "category": "Energy",
         "categoryType": "str",
         "xAxisLabel": "Time",
-        "xAxisProperty": "",
-        "xAxisPropertyType": "timestamp",
+        "xAxisProperty": "timestamp",
+        "xAxisPropertyType": "msg",
         "xAxisType": "time",
         "xAxisFormat": "",
         "xAxisFormatType": "auto",
@@ -530,7 +530,7 @@
         "type": "comment",
         "z": "9f0a4d1acb454857",
         "name": "Communication Layer",
-        "info": "",
+        "info": "Publishes and subscribes HVAC data using MQTT.",
         "x": 400,
         "y": 500,
         "wires": []
@@ -540,7 +540,7 @@
         "type": "comment",
         "z": "9f0a4d1acb454857",
         "name": "Presentation Layer",
-        "info": "",
+        "info": "Displays live telemetry and alarm status.",
         "x": 1030,
         "y": 780,
         "wires": []
@@ -686,7 +686,7 @@
         "id": "edd196103b2d42df",
         "type": "function",
         "z": "9f0a4d1acb454857",
-        "name": "Fetch History",
+        "name": "Refresh History",
         "func": "msg.topic = `\nSELECT *\nFROM hvac_logs\nORDER BY id DESC\nLIMIT 10;\n`;\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
@@ -694,7 +694,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1130,
+        "x": 1140,
         "y": 400,
         "wires": [
             [
@@ -710,7 +710,7 @@
         "sqlquery": "msg.topic",
         "sql": "",
         "name": "SQLite (SELECT)",
-        "x": 1370,
+        "x": 1390,
         "y": 400,
         "wires": [
             [
@@ -739,11 +739,545 @@
         "mobileBreakpointType": "defaults",
         "action": "replace",
         "className": "",
-        "x": 1640,
+        "x": 1660,
         "y": 400,
         "wires": [
             []
         ]
+    },
+    {
+        "id": "f06cce1a47d2b6b9",
+        "type": "inject",
+        "z": "9f0a4d1acb454857",
+        "name": "Refresh Analytics",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 1260,
+        "wires": [
+            [
+                "6a18a8c1c294bcf1",
+                "29ed76555a864726",
+                "d8b0bad040f01452",
+                "6f898fab906adfd0",
+                "dcc57e3f17119252",
+                "d19b2c5371a2d602"
+            ]
+        ]
+    },
+    {
+        "id": "6a18a8c1c294bcf1",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "Total Records Query",
+        "func": "msg.topic = `\nSELECT COUNT(*) AS total_records\nFROM hvac_logs;\n`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 1260,
+        "wires": [
+            [
+                "1b06e4c922268631"
+            ]
+        ]
+    },
+    {
+        "id": "1b06e4c922268631",
+        "type": "sqlite",
+        "z": "9f0a4d1acb454857",
+        "mydb": "1b85c1c2aad97f1e",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "",
+        "x": 610,
+        "y": 1260,
+        "wires": [
+            [
+                "5d0072e2470ac1e4"
+            ]
+        ]
+    },
+    {
+        "id": "f3d8dbfc3b47f201",
+        "type": "ui-text",
+        "z": "9f0a4d1acb454857",
+        "group": "839bcb8833d1afd4",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Total Records",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "msg.payload ",
+        "valueType": "jsonata",
+        "x": 1120,
+        "y": 1260,
+        "wires": []
+    },
+    {
+        "id": "5d0072e2470ac1e4",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "Extract ",
+        "func": "msg.payload = msg.payload[0].total_records;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 880,
+        "y": 1260,
+        "wires": [
+            [
+                "f3d8dbfc3b47f201"
+            ]
+        ]
+    },
+    {
+        "id": "29ed76555a864726",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "Avg Temperature Query",
+        "func": "msg.topic = `\nSELECT ROUND(AVG(temperature), 2) AS avg_temperature\nFROM hvac_logs;\n`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 1360,
+        "wires": [
+            [
+                "58a343c0095d8bcd"
+            ]
+        ]
+    },
+    {
+        "id": "58a343c0095d8bcd",
+        "type": "sqlite",
+        "z": "9f0a4d1acb454857",
+        "mydb": "1b85c1c2aad97f1e",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "",
+        "x": 610,
+        "y": 1360,
+        "wires": [
+            [
+                "f40f4532d1586fad"
+            ]
+        ]
+    },
+    {
+        "id": "e725121c31ac0c4e",
+        "type": "ui-text",
+        "z": "9f0a4d1acb454857",
+        "group": "7b25720265b6beb3",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Average Temperature",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "msg.payload &\"  °C\" ",
+        "valueType": "jsonata",
+        "x": 1140,
+        "y": 1360,
+        "wires": []
+    },
+    {
+        "id": "f40f4532d1586fad",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "Extract ",
+        "func": "msg.payload = msg.payload[0].avg_temperature;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 880,
+        "y": 1360,
+        "wires": [
+            [
+                "e725121c31ac0c4e"
+            ]
+        ]
+    },
+    {
+        "id": "d8b0bad040f01452",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "Avg Humidity Query",
+        "func": "msg.topic = `\nSELECT ROUND(AVG(humidity), 2) AS avg_humidity\nFROM hvac_logs;\n`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 1460,
+        "wires": [
+            [
+                "f053bfa7ca3b44b6"
+            ]
+        ]
+    },
+    {
+        "id": "f053bfa7ca3b44b6",
+        "type": "sqlite",
+        "z": "9f0a4d1acb454857",
+        "mydb": "1b85c1c2aad97f1e",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "",
+        "x": 610,
+        "y": 1460,
+        "wires": [
+            [
+                "87f36490acac0f28"
+            ]
+        ]
+    },
+    {
+        "id": "9f797b51cc7d2bcb",
+        "type": "ui-text",
+        "z": "9f0a4d1acb454857",
+        "group": "dc2c2cd5c96b6acc",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Average Humidity",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "msg.payload &\"  %\" ",
+        "valueType": "jsonata",
+        "x": 1120,
+        "y": 1460,
+        "wires": []
+    },
+    {
+        "id": "87f36490acac0f28",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "Extract ",
+        "func": "msg.payload = msg.payload[0].avg_humidity;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 880,
+        "y": 1460,
+        "wires": [
+            [
+                "9f797b51cc7d2bcb"
+            ]
+        ]
+    },
+    {
+        "id": "6f898fab906adfd0",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "Total Energy Consumed Query",
+        "func": "msg.topic = `\nSELECT ROUND(SUM(energy), 2) AS total_energy\nFROM hvac_logs;\n`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 1580,
+        "wires": [
+            [
+                "e148b36a187f8dc4"
+            ]
+        ]
+    },
+    {
+        "id": "e148b36a187f8dc4",
+        "type": "sqlite",
+        "z": "9f0a4d1acb454857",
+        "mydb": "1b85c1c2aad97f1e",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "",
+        "x": 610,
+        "y": 1580,
+        "wires": [
+            [
+                "bf17954cceed5efe"
+            ]
+        ]
+    },
+    {
+        "id": "18c0a60194b31fc4",
+        "type": "ui-text",
+        "z": "9f0a4d1acb454857",
+        "group": "21ca78fdd6b28441",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Total Energy ",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "msg.payload &\"  kWh\" ",
+        "valueType": "jsonata",
+        "x": 1100,
+        "y": 1580,
+        "wires": []
+    },
+    {
+        "id": "bf17954cceed5efe",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "Extract ",
+        "func": "msg.payload = msg.payload[0].total_energy;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 880,
+        "y": 1580,
+        "wires": [
+            [
+                "18c0a60194b31fc4"
+            ]
+        ]
+    },
+    {
+        "id": "dcc57e3f17119252",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "Maximum Voltage Query",
+        "func": "msg.topic = `\nSELECT MAX(voltage) AS max_voltage\nFROM hvac_logs;\n`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 1680,
+        "wires": [
+            [
+                "cea9ad4908abc903"
+            ]
+        ]
+    },
+    {
+        "id": "cea9ad4908abc903",
+        "type": "sqlite",
+        "z": "9f0a4d1acb454857",
+        "mydb": "1b85c1c2aad97f1e",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "",
+        "x": 610,
+        "y": 1680,
+        "wires": [
+            [
+                "51c2e7b4b209bb19"
+            ]
+        ]
+    },
+    {
+        "id": "8547978cb70d2837",
+        "type": "ui-text",
+        "z": "9f0a4d1acb454857",
+        "group": "c7d0c4f1278896b5",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Maximum Voltage",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "msg.payload &\"  V\" ",
+        "valueType": "jsonata",
+        "x": 1100,
+        "y": 1680,
+        "wires": []
+    },
+    {
+        "id": "51c2e7b4b209bb19",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "Extract ",
+        "func": "msg.payload = msg.payload[0].max_voltage;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 880,
+        "y": 1680,
+        "wires": [
+            [
+                "8547978cb70d2837"
+            ]
+        ]
+    },
+    {
+        "id": "d19b2c5371a2d602",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "Minimum Voltage Query",
+        "func": "msg.topic = `\nSELECT MIN(voltage) AS min_voltage\nFROM hvac_logs;\n`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 1780,
+        "wires": [
+            [
+                "9a49b8a70bb707db"
+            ]
+        ]
+    },
+    {
+        "id": "9a49b8a70bb707db",
+        "type": "sqlite",
+        "z": "9f0a4d1acb454857",
+        "mydb": "1b85c1c2aad97f1e",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "",
+        "x": 610,
+        "y": 1780,
+        "wires": [
+            [
+                "9e022e2a8e4bc229"
+            ]
+        ]
+    },
+    {
+        "id": "9be1f273cd58aa56",
+        "type": "ui-text",
+        "z": "9f0a4d1acb454857",
+        "group": "33a76dddf9e552d2",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Minimum Voltage",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "msg.payload &\"  V\" ",
+        "valueType": "jsonata",
+        "x": 1110,
+        "y": 1780,
+        "wires": []
+    },
+    {
+        "id": "9e022e2a8e4bc229",
+        "type": "function",
+        "z": "9f0a4d1acb454857",
+        "name": "Extract ",
+        "func": "msg.payload = msg.payload[0].min_voltage;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 1780,
+        "wires": [
+            [
+                "9be1f273cd58aa56"
+            ]
+        ]
+    },
+    {
+        "id": "09cc4bf53a1e4793",
+        "type": "comment",
+        "z": "9f0a4d1acb454857",
+        "name": "Database Layer",
+        "info": "Stores and retrieves historical HVAC data.",
+        "x": 1360,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "be13751d3033834b",
+        "type": "comment",
+        "z": "9f0a4d1acb454857",
+        "name": "Analytics Layer",
+        "info": "Computes SQL-based KPIs for the dashboard.",
+        "x": 640,
+        "y": 1180,
+        "wires": []
     },
     {
         "id": "1b0d70d0ced72d29",
@@ -853,6 +1387,90 @@
         "groupType": "default"
     },
     {
+        "id": "839bcb8833d1afd4",
+        "type": "ui-group",
+        "name": "Total Records",
+        "page": "cac00a6afc9cb266",
+        "width": 6,
+        "height": 1,
+        "order": 6,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "7b25720265b6beb3",
+        "type": "ui-group",
+        "name": "Average Temperature",
+        "page": "cac00a6afc9cb266",
+        "width": 6,
+        "height": 1,
+        "order": 8,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "dc2c2cd5c96b6acc",
+        "type": "ui-group",
+        "name": "Average Humidity",
+        "page": "cac00a6afc9cb266",
+        "width": 6,
+        "height": 1,
+        "order": 9,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "21ca78fdd6b28441",
+        "type": "ui-group",
+        "name": "Total Energy ",
+        "page": "cac00a6afc9cb266",
+        "width": 6,
+        "height": 1,
+        "order": 7,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "c7d0c4f1278896b5",
+        "type": "ui-group",
+        "name": "Maximum Voltage",
+        "page": "cac00a6afc9cb266",
+        "width": 6,
+        "height": 1,
+        "order": 10,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "33a76dddf9e552d2",
+        "type": "ui-group",
+        "name": "Minimum Voltage",
+        "page": "cac00a6afc9cb266",
+        "width": 6,
+        "height": 1,
+        "order": 11,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
         "id": "cac00a6afc9cb266",
         "type": "ui-page",
         "name": "HVAC & Remote Energy Monitoring System",
@@ -928,7 +1546,7 @@
         }
     },
     {
-        "id": "db40452482324025",
+        "id": "05410169747ff85a",
         "type": "global-config",
         "env": [],
         "modules": {
